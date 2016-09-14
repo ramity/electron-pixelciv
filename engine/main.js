@@ -12,114 +12,136 @@
   canvas.style.height = window.innerHeight;
 
   create_map();
-  render_map();
+
+  draw_map();
 })();
 
-function create_map () {
-  window.maptiles = 2000;
-  window.mapxmax = 0;
-  window.mapymax = 0;
-  window.mapxmin = 0;
-  window.mapymin = 0;
+function draw_map()
+{
+
+}
+
+function create_map()
+{
   window.map = [];
-  window.map[0] = {
-  'title': 'spawn'
-  , 'x': 0
-  , 'y': 0
-  };
-  cur_x = 0;
-  cur_y = 0;
-  for (c = 1; c < maptiles + 1; c++) {
-    t_tile = {};
-    t_cur_x = cur_x;
-    t_cur_y = cur_y;
-    //declaring +1 or -1 delta in direction
-    if (rand(0, 1) == 0) {
-      r_delta = 1;
-    } else {
-      r_delta = -1;
-    }
-    //declaring if change is in the x or y planes
-    if (rand(0, 1) == 0) {
-      t_cur_x += r_delta;
-    } else {
-      t_cur_y += r_delta;
-    }
-    //declare temp tile
-    t_tile = {
-      'x': t_cur_x
-      , 'y': t_cur_y
-    };
-    //search array to check if map tile coords already exist
-    if (checkmaptile(t_tile)) {
-      //create map tiled
-      window.maperror = 0;
-      t_tile.id = c;
-      window.map[c] = t_tile;
-      cur_x = t_cur_x;
-      cur_y = t_cur_y;
-      if (cur_x > mapxmax)
-        mapxmax = cur_x;
-      if (cur_y > mapymax)
-        mapymax = cur_y;
-      if (cur_x < mapxmin)
-        mapxmin = cur_x;
-      if (cur_y < mapymin)
-        mapymin = cur_y;
-    } else {
-      window.maperror++;
-      if (window.maperror >= 32) {
-        window.maperror = 0;
-        cur_x = window.map[c - 1].x;
-        cur_y = window.map[c - 1].y;
+
+  //initialize
+  window.current_x = 0;
+  window.current_y = 0;
+
+  for (z = 0;z < 5000;z++)
+  {
+    //initialize
+    temp_x = current_x;
+    temp_y = current_y;
+
+    created = false;
+
+    while(!created)
+    {
+      if(choose_tile(temp_x,temp_y))
+      {
+        created = true;
+
+        console.log('[F] - ' + z);
+      }
+      else
+      {
+        z--;
+
+        console.log('[B]');
+
+        map.splice(z,1);
       }
     }
   }
+
+  console.log(map);
 }
-function render_map () {
-  t_mapwidth = document.getElementById('output').width;
-  t_mapheight = document.getElementById('output').height;
 
-  console.log(mapxmin);
-  console.log(mapymin);
-  console.log(mapxmax);
-  console.log(mapymax);
+function choose_tile(input_x,input_y)
+{
+  directions = ['u','r','d','l'];
 
-  t_mapabswidth = Math.abs(mapxmin) + Math.abs(mapxmax);
-  t_mapabsheight = Math.abs(mapymin) + Math.abs(mapymax);
-  t_mapbiggest = Math.max(t_mapabsheight, t_mapabswidth);
-  window.size = t_mapwidth / (t_mapbiggest + 1);
-
-  //following if then statement is for centering the map on smallest axis
-  if (t_mapabsheight > t_mapabswidth) {
-    o_x = Math.abs((mapxmin * size) - ((t_mapwidth - (t_mapabswidth * size)) / 2)) - (size / 2);
-    o_y = Math.abs(mapymin * size);
-  } else {
-    o_x = Math.abs(mapxmin * size);
-    o_y = Math.abs((mapymin * size) - ((t_mapheight - (t_mapabsheight * size)) / 2)) - (size / 2);
+  //iterate through all map tiles
+  for (var id in window.map)
+  {
+    //test tiles around input_x + input_y
+    if (window.map[id].x == input_x && window.map[id].y == (input_y + 1))
+    {
+      directions.splice(0,1);
+    }
+    else if (window.map[id].x == (input_x + 1) && window.map[id].y == input_y)
+    {
+      directions.splice(1,1);
+    }
+    else if (window.map[id].x == input_x && window.map[id].y == (input_y - 1))
+    {
+      directions.splice(2,1);
+    }
+    else if (window.map[id].x == (input_x - 1) && window.map[id].y == input_y)
+    {
+      directions.splice(3,1);
+    }
   }
-  c = document.getElementById('output');
-  ctx = c.getContext('2d');
-  ctx.clearRect(0, 0, c.width, c.height);
-  for (z = 0; z <= window.maptiles; z++) {
-    ctx.beginPath();
-    ctx.lineWidth = '1';
-    x = (map[z].x * size) + o_x;
-    y = (map[z].y * size) + o_y;
-    ctx.fillRect(x, y, size, size);
-    ctx.stroke();
+
+  rand = directions[Math.floor(Math.random() * directions.length)];
+
+  if (rand == 'u')
+  {
+    window.current_x = input_x;
+    window.current_y = input_y + 1;
+
+    map[z] = {
+      x: current_x,
+      y: current_y
+    }
+
+    return true;
   }
-  //console.log(JSON.stringify(map).length);
+  else if (rand == 'r')
+  {
+    window.current_x = input_x + 1;
+    window.current_y = input_y;
+
+    map[z] = {
+      x: current_x,
+      y: current_y
+    }
+
+    return true;
+  }
+  else if (rand == 'd')
+  {
+    window.current_x = input_x;
+    window.current_y = input_y - 1;
+
+    map[z] = {
+      x: current_x,
+      y: current_y
+    }
+
+    return true;
+  }
+  else if (rand == 'l')
+  {
+    window.current_x = input_x - 1;
+    window.current_y = input_y;
+
+    map[z] = {
+      x: current_x,
+      y: current_y
+    }
+
+    return true;
+  }
+  else
+    return false;
 }
-function rand(min, max) {
+
+function rand(min,max)
+{
   return Math.floor(Math.random() * (max - min + 1) + min);
-}
-function checkmaptile(t_input) {
-  for (c = 0; c < window.map.length; c++) {
-    if (map[c]['x'] == t_input['x'] && map[c]['y'] == t_input['y'])
-      return false;
-  }
-  return true;
 }
 
 function write(input,filepath)
