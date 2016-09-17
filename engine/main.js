@@ -29,7 +29,9 @@ function create_map()
   window.current_x = 0;
   window.current_y = 0;
 
-  for (z = 0;z < 5000;z++)
+  window.problems = [];
+
+  for (z = 0;z < 1000;z++)
   {
     //initialize
     temp_x = current_x;
@@ -37,9 +39,9 @@ function create_map()
 
     created = false;
 
-    while(!created)
+    while (!created)
     {
-      if(choose_tile(temp_x,temp_y))
+      if (choose_tile(temp_x,temp_y))
       {
         created = true;
 
@@ -48,6 +50,49 @@ function create_map()
       else
       {
         z--;
+
+        for (id in window.problems)
+        {
+          if (window.problems[id].z == z)
+          {
+            if (window.problems[id].count > 4)
+            {
+              fixed = false;
+
+              while (!fixed)
+              {
+                //check if there are mutliple problems
+                if(window.problems.length >= 2)
+                {
+                  for (id_b in window.problems)
+                  {
+                    if (Math.abs(window.problems[id_b].count - window.problems[id].count) > 4)
+                    {
+                      z = z - 4;
+
+                      map.splice(z,4);
+
+                      console.log('Removing 4 map items');
+
+                      fixed = true;
+                    }
+                  }
+                }
+
+
+              }
+            }
+            else
+            {
+              window.problems[id].count++;
+            }
+          }
+        }
+
+        problem = {
+          z: z,
+          count : 1
+        }
 
         console.log('[B]');
 
@@ -83,6 +128,11 @@ function choose_tile(input_x,input_y)
     {
       directions.splice(3,1);
     }
+  }
+
+  if(!directions.length)
+  {
+    return false;
   }
 
   rand = directions[Math.floor(Math.random() * directions.length)];
